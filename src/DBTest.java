@@ -26,6 +26,26 @@ public class DBTest {
 			System.out.println("Connect Success");
 			stmt = conn.createStatement();
 			
+//			createProcedure(conn);
+			
+			sql = "DROP PROCEDURE IF EXISTS register ";
+			sql += "DELIMITER $$ ";
+			sql += "CREATE PROCEDURE register(";
+			sql += "IN user_id VARCHAR(10), ";
+			sql += "IN e_mail VARCHAR(45)) ";
+			sql += "BEGIN ";
+			sql += "INSERT INTO `user` (user_id, e_mail) VALUES (user_id, e_mail) ";
+			sql += "END $$ ";
+			sql += "DELIMITER ;";
+			
+			try {
+				stmt = conn.createStatement();
+				stmt.execute(sql);
+			} catch (SQLException e) {
+				System.out.println("Create Procedure Error: " + e.getMessage());
+				e.printStackTrace();
+			}
+			
 			cs = conn.prepareCall("{call register(?,?)}");
             cs.setString("user_id", "hyogu");
             cs.setString("e_mail", "hook3748@naver.com");
@@ -57,5 +77,27 @@ public class DBTest {
 			e.printStackTrace();
 			return;
 		}
+	}
+
+	private static void createProcedure(Connection conn) {
+		Statement stmt;
+		String sql;
+		ResultSet rs;
+		
+		sql = "DROP PROCEDURE IF EXISTS register ";
+		sql += "DELIMITER $$ ";
+		sql += "CREATE PROCEDURE register(IN user_id VARCHAR(10), IN e_mail VARCHAR(45)) ";
+		sql += "BEGIN ";
+		sql += "INSERT INTO `user` (user_id, e_mail) VALUES (user_id, e_mail) ";
+		sql += "END $$ ";
+		sql += "DELIMITER ;";
+		
+		try {
+			stmt = conn.createStatement();
+			rs = stmt.executeQuery(sql);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
 	}
 }
