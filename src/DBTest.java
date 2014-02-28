@@ -26,31 +26,16 @@ public class DBTest {
 			System.out.println("Connect Success");
 			stmt = conn.createStatement();
 			
-//			createProcedure(conn);
+			// 프로시저 만들
+			createProcedure(conn);
 			
-			sql = "DROP PROCEDURE IF EXISTS register ";
-			sql += "DELIMITER $$ ";
-			sql += "CREATE PROCEDURE register(";
-			sql += "IN user_id VARCHAR(10), ";
-			sql += "IN e_mail VARCHAR(45)) ";
-			sql += "BEGIN ";
-			sql += "INSERT INTO `user` (user_id, e_mail) VALUES (user_id, e_mail) ";
-			sql += "END $$ ";
-			sql += "DELIMITER ;";
-			
-			try {
-				stmt = conn.createStatement();
-				stmt.execute(sql);
-			} catch (SQLException e) {
-				System.out.println("Create Procedure Error: " + e.getMessage());
-				e.printStackTrace();
-			}
-			
+			// 회원가입 프로시저 호출 
 			cs = conn.prepareCall("{call register(?,?)}");
             cs.setString("user_id", "hyogu");
             cs.setString("e_mail", "hook3748@naver.com");
             cs.execute();
             
+            // 호출 확인 
 			sql = "select * from user";
 			rs = stmt.executeQuery(sql);
 			while(rs.next()) {
@@ -59,10 +44,12 @@ public class DBTest {
 				System.out.printf("%s : %s \n", user_id, e_mail);
 			}
 			
+			// 카드 만들기 프로시저 호출 
 			cs = conn.prepareCall("{call pick_character(?)}");
             cs.setString("user_id", "hyogu");
             cs.execute();
             
+            // 호출 확인 
 			sql = "SELECT * FROM `character`";
 			rs = stmt.executeQuery(sql);
 			while(rs.next()) {
@@ -82,22 +69,37 @@ public class DBTest {
 	private static void createProcedure(Connection conn) {
 		Statement stmt;
 		String sql;
-		ResultSet rs;
 		
-		sql = "DROP PROCEDURE IF EXISTS register ";
-		sql += "DELIMITER $$ ";
-		sql += "CREATE PROCEDURE register(IN user_id VARCHAR(10), IN e_mail VARCHAR(45)) ";
+		// register procedure
+		sql = "CREATE PROCEDURE register(IN user_id VARCHAR(10), ";
+		sql += "IN e_mail VARCHAR(45)) ";
 		sql += "BEGIN ";
-		sql += "INSERT INTO `user` (user_id, e_mail) VALUES (user_id, e_mail) ";
-		sql += "END $$ ";
-		sql += "DELIMITER ;";
+		sql += "INSERT INTO user (user_id, e_mail) VALUES (user_id, e_mail); ";
+		sql += "END";
 		
 		try {
 			stmt = conn.createStatement();
-			rs = stmt.executeQuery(sql);
+			stmt.execute(sql);
 		} catch (SQLException e) {
+			System.out.println("Create Procedure Error: " + e.getMessage());
 			e.printStackTrace();
 		}
 		
+		// pick_character procedure
+		sql = "CREATE PROCEDURE pick_character(IN user_id VARCHAR(10)) ";
+		sql += "BEGIN ";
+		sql += "DECLARE grade INT; ";
+		sql += "SET grade = FLOOR(1 + RAND() * 5); ";
+		sql += "INSERT INTO `character` (user_id, grade, hp, damage, img, expr) ";
+		sql += "VALUES (user_id, grade, 100 * grade, 10 * grade, 'img', 100*grade); ";
+		sql += "END";
+		
+		try {
+			stmt = conn.createStatement();
+			stmt.execute(sql);
+		} catch (SQLException e) {
+			System.out.println("Create Procedure Error: " + e.getMessage());
+			e.printStackTrace();
+		}
 	}
 }
