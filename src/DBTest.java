@@ -39,12 +39,16 @@ public class DBTest {
 				System.out.printf("%s : %s \n", user_id, e_mail);
 			}
 			
-//			sql = "SELECT * FROM `character`";
-//			rs = stmt.executeQuery(sql);
-//			while(rs.next()) {
-//				String user_id = rs.getString("user_id");
-//				System.out.printf("%s\n", user_id);
-//			}
+			cs = conn.prepareCall("{call pick_character(?)}");
+            cs.setString("user_id", "hyogu");
+            cs.execute();
+            
+			sql = "SELECT * FROM `character`";
+			rs = stmt.executeQuery(sql);
+			while(rs.next()) {
+				String user_id = rs.getString("user_id");
+				System.out.printf("%s\n", user_id);
+			}
 			
 			stmt.close();
 			conn.close();
